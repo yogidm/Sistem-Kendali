@@ -13,14 +13,32 @@
 - Laptop dengan Arduino IDE terbaru  
 
 ### Langkah Kerja
-1. Unduh dan instal **Arduino IDE** dari situs resmi.  
-2. Hubungkan Arduino Mega 2560 ke laptop menggunakan kabel USB.  
-3. Buka Arduino IDE → Pilih **Tools → Board → Arduino Mega 2560**.  
-4. Pilih **Tools → Port → COM...** sesuai perangkat.  
-5. Uji coba dengan program **Blink** bawaan IDE:  
+1. Unduh dan instal **Arduino IDE** dari situs resmi.  [arduino.cc](arduino.cc)
+3. Hubungkan Arduino Mega 2560 ke laptop menggunakan kabel USB.  
+4. Buka Arduino IDE → Pilih **Tools → Board → Arduino Mega 2560**.  
+5. Pilih **Tools → Port → COM...** sesuai perangkat.  
+6. Uji coba dengan program **Blink** bawaan IDE:  
    - Klik **File → Examples → 01.Basics → Blink**.  
    - Upload ke board.  
-6. Amati LED pada pin 13 yang akan berkedip.  
+7. Amati LED pada pin 13 yang akan berkedip.
+
+## Instalasi Driver Arduino Mega 2560
+
+### Windows
+1. Hubungkan board Arduino Mega 2560 ke laptop/PC dengan kabel USB.  
+2. Windows biasanya akan mendeteksi perangkat otomatis. Jika driver belum terpasang:  
+   - Buka **Device Manager** (`Win + X` → *Device Manager*).  
+   - Cari bagian **Ports (COM & LPT)** → akan muncul *Arduino Mega 2560 (COMx)*.  
+   - Jika ada tanda kuning, berarti driver belum terpasang.  
+3. Buka **Arduino IDE** → menu **Tools → Board** pilih *Arduino Mega 2560*.  
+4. Jika driver masih belum dikenali:  
+   - Unduh driver **CH340/ATmega16U2** (tergantung versi board) dari situs resmi atau GitHub.  
+   - Instal dengan klik kanan → *Run as Administrator*.  
+   - Setelah selesai, cabut dan pasang kembali board.  
+5. Panduan tambahan instalasi driver CH340G dapat dilihat di:  
+   [Cara Install Driver Arduino CH340G](http://yogi.blog.um.ac.id/2020/11/01/cara-install-driver-arduino-ch340g/)  
+
+---
 
 ### Tugas
 - Buat modifikasi program Blink dengan interval 200 ms dan 1 detik.  
