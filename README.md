@@ -113,7 +113,7 @@ void loop() {
   - Titik tengah -> A0 Arduino Mega  
 - LED:  
   - Anoda -> pin 9 Arduino Mega (PWM)  
-  - Katoda -> resistor â†’ GND  
+  - Katoda -> resistor -> GND  
 
 ### Kode Program
 ```cpp
@@ -137,6 +137,9 @@ void loop() {
 ```
 
 ### Tugas
-- Modifikasi program agar LED hanya menyala jika ruangan gelap (misalnya nilai LDR < 500).  
+- Modifikasi program agar LED hanya menyala jika ruangan gelap (misalnya nilai LDR < 500).
 
 ---
+
+
+## Jangan Lupa Buat Analisis dan Laporannya. 
