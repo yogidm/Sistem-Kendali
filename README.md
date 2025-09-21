@@ -108,7 +108,7 @@ void loop() {
 
 ### Rangkaian
 - LDR dan resistor 10kΩ dibuat **pembagi tegangan**:  
-  - LDR â†’ 5V  
+  - LDR -> 5V  
   - Resistor 10kΩ -> GND  
   - Titik tengah -> A0 Arduino Mega  
 - LED:  
