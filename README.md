@@ -1,4 +1,4 @@
-# Praktikum Sistem Kendali Berbasis Arduino Mega 2560
+# Praktikum Sistem Kendali - Arduino Mega 2560
 
 ## Jobsheet 1: Instalasi Arduino
 
