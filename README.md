@@ -69,8 +69,6 @@
 
 ### Kode Program
 ```cpp
-
-```cpp
 int potPin = A0;
 int ledPin = 9;
 int potValue = 0;
