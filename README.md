@@ -1,4 +1,7 @@
 # Praktikum Sistem Kendali - Arduino Mega 2560
+Pinout Arduino Uno
+
+![Alt text](https://github.com/yogidm/Sistem-Kendali/blob/main/Arduino-UNO-Parts-Marking.jpg "Optional Title")
 
 ## Jobsheet 1: Instalasi Arduino
 
