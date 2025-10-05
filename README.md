@@ -143,4 +143,234 @@ void loop() {
 ---
 
 
+# JOBSHEET 4  
+## SISTEM KONTROL SUHU MENGGUNAKAN SENSOR LM35 DAN LED
+
+### A. Tujuan Pembelajaran  
+1. Mahasiswa mampu memahami prinsip kerja sensor suhu LM35.  
+2. Mahasiswa mampu membaca data suhu menggunakan Arduino.  
+3. Mahasiswa mampu mengontrol LED berdasarkan suhu (open loop dan close loop).  
+4. Mahasiswa mampu merekam data suhu ke file CSV menggunakan CoolTerm dan menganalisisnya di Excel.
+
+---
+
+### B. Alat dan Bahan  
+- 1 unit Arduino Uno  
+- 1 buah sensor suhu LM35  
+- 3 buah LED (Merah, Kuning, Hijau)  
+- 3 buah resistor 220Î©  
+- 1 buah Breadboard  
+- 6 kabel jumper  
+- 1 kabel USB  
+- Aplikasi **CoolTerm** untuk logging data
+
+---
+
+### C. Dasar Teori  
+Sensor **LM35** adalah sensor suhu analog yang menghasilkan tegangan keluaran sebanding dengan suhu dalam skala Celsius.  
+Setiap perubahan **10 mV** mewakili **1Â°C**.  
+Arduino membaca nilai analog (0â€“1023) dari LM35 pada rentang tegangan 0â€“5V, sehingga suhu dapat dihitung dengan rumus:  
+
+\[
+\text{Suhu (Â°C)} = \frac{\text{Nilai ADC} \times 5.0 \times 100}{1024}
+\]
+
+---
+
+## KEGIATAN 1 â€“ Sistem Open Loop (Pembacaan Sensor Saja)
+
+### Tujuan  
+Membaca suhu dari sensor LM35 tanpa memengaruhi output (monitoring saja).
+
+### Langkah Percobaan  
+1. Hubungkan pin LM35 sebagai berikut:  
+   - VCC â†’ 5V Arduino  
+   - OUT â†’ A0 Arduino  
+   - GND â†’ GND Arduino  
+2. Upload program berikut ke Arduino.
+
+### Kode Program
+```cpp
+int sensorPin = A0;
+float suhu;
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  int adcValue = analogRead(sensorPin);
+  suhu = (adcValue * 5.0 * 100.0) / 1024.0;
+  Serial.print("Suhu: ");
+  Serial.print(suhu);
+  Serial.println(" Â°C");
+  delay(1000);
+}
+```
+
+### Analisis  
+Amati hasil pembacaan suhu pada **Serial Monitor**. Perhatikan bahwa output tidak berubah meskipun suhu naik atau turun.
+
+---
+
+## KEGIATAN 2 â€“ Sistem Close Loop (Kontrol 3 LED Berdasarkan Suhu)
+
+### Tujuan  
+Menyalakan LED sesuai dengan batas suhu tertentu.
+
+### Langkah Percobaan  
+1. Hubungkan tiga LED dengan resistor ke pin berikut:  
+   - LED Hijau â†’ pin 8  
+   - LED Kuning â†’ pin 9  
+   - LED Merah â†’ pin 10  
+2. Upload program berikut.
+
+### Kode Program
+```cpp
+int sensorPin = A0;
+int ledHijau = 8;
+int ledKuning = 9;
+int ledMerah = 10;
+float suhu;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(ledHijau, OUTPUT);
+  pinMode(ledKuning, OUTPUT);
+  pinMode(ledMerah, OUTPUT);
+}
+
+void loop() {
+  int adcValue = analogRead(sensorPin);
+  suhu = (adcValue * 5.0 * 100.0) / 1024.0;
+
+  if (suhu < 30) {
+    digitalWrite(ledHijau, HIGH);
+    digitalWrite(ledKuning, LOW);
+    digitalWrite(ledMerah, LOW);
+  } else if (suhu < 35) {
+    digitalWrite(ledHijau, LOW);
+    digitalWrite(ledKuning, HIGH);
+    digitalWrite(ledMerah, LOW);
+  } else {
+    digitalWrite(ledHijau, LOW);
+    digitalWrite(ledKuning, LOW);
+    digitalWrite(ledMerah, HIGH);
+  }
+
+  Serial.print("Suhu: ");
+  Serial.print(suhu);
+  Serial.println(" Â°C");
+  delay(1000);
+}
+```
+
+### Analisis  
+Amati perubahan LED saat suhu sensor meningkat atau menurun.
+
+---
+
+## KEGIATAN 3 â€“ Kontrol Proporsional Warna LED
+
+### Tujuan  
+Membuat perubahan warna LED sebanding (proporsional) terhadap kenaikan suhu.
+
+### Langkah Percobaan  
+1. Gunakan kembali tiga LED dengan pin yang sama.  
+2. Upload program berikut.
+
+### Kode Program
+```cpp
+int sensorPin = A0;
+int ledHijau = 8;
+int ledKuning = 9;
+int ledMerah = 10;
+float suhu;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(ledHijau, OUTPUT);
+  pinMode(ledKuning, OUTPUT);
+  pinMode(ledMerah, OUTPUT);
+}
+
+void loop() {
+  int adcValue = analogRead(sensorPin);
+  suhu = (adcValue * 5.0 * 100.0) / 1024.0;
+
+  // Mapping proporsional antara 20Â°C â€“ 40Â°C
+  int intensitasHijau = map(suhu, 20, 40, 255, 0);
+  int intensitasMerah = map(suhu, 20, 40, 0, 255);
+  int intensitasKuning = 128;
+
+  analogWrite(ledHijau, constrain(intensitasHijau, 0, 255));
+  analogWrite(ledKuning, intensitasKuning);
+  analogWrite(ledMerah, constrain(intensitasMerah, 0, 255));
+
+  Serial.print("Suhu: ");
+  Serial.print(suhu);
+  Serial.println(" Â°C");
+  delay(500);
+}
+```
+
+### Analisis  
+Amati transisi warna LED yang berubah perlahan seiring perubahan suhu.
+
+---
+
+## KEGIATAN 4 â€“ Logging Data Suhu ke File CSV
+
+### Tujuan  
+Merekam data suhu Arduino ke komputer dan memplot grafik di Microsoft Excel.
+
+### Langkah Percobaan  
+1. Unduh dan pasang aplikasi **CoolTerm** dari situs resmi:  
+   [https://freeware.the-meiers.org](https://freeware.the-meiers.org)  
+2. Jalankan CoolTerm, pilih **Connection â†’ Options â†’ Serial Port**, atur:  
+   - Port: COM Arduino Anda  
+   - Baudrate: 9600  
+   - Data Bits: 8, Stop Bits: 1, Parity: None  
+3. Klik **Connect**. Data suhu akan tampil secara real-time.  
+4. Untuk menyimpan data, pilih **Connection â†’ Capture to Textfile â†’ Start**.  
+   Simpan dengan nama `data_suhu.csv`.  
+5. Setelah selesai, pilih **Stop Capture**.  
+6. Buka file `.csv` tersebut di **Microsoft Excel**, lalu buat grafik garis suhu terhadap waktu.
+
+### Kode Program
+Gunakan kode dari **Kegiatan 1** (pembacaan suhu), karena sudah menampilkan data ke Serial.
+
+```cpp
+int sensorPin = A0;
+float suhu;
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  int adcValue = analogRead(sensorPin);
+  suhu = (adcValue * 5.0 * 100.0) / 1024.0;
+  Serial.print("Suhu: ");
+  Serial.print(suhu);
+  Serial.println(" Â°C");
+  delay(1000);
+}
+```
+
+### Analisis  
+Bandingkan grafik suhu hasil pengukuran dengan kondisi lingkungan sekitar (misalnya ketika didekatkan ke tangan atau sumber panas).
+
+---
+
+### D. Pertanyaan Umum  
+1. Apa perbedaan sistem open loop dan close loop pada kontrol suhu ini?  
+2. Bagaimana pengaruh suhu terhadap perubahan intensitas LED?  
+3. Mengapa diperlukan resistor pada rangkaian LED?  
+4. Bagaimana cara meningkatkan akurasi pembacaan suhu LM35?
+
+---
+
+
+
 ## Jangan Lupa Buat Analisis dan Laporannya. 
