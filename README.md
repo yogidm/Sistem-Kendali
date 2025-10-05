@@ -158,9 +158,9 @@ void loop() {
 - 1 unit Arduino Uno  
 - 1 buah sensor suhu LM35  
 - 3 buah LED (Merah, Kuning, Hijau)  
-- 3 buah resistor 220Î©  
+- 3 buah resistor 220 Ohm
 - 1 buah Breadboard  
-- 6 kabel jumper  
+-  kabel jumper secukupnya
 - 1 kabel USB  
 - Aplikasi **CoolTerm** untuk logging data
 
@@ -168,25 +168,27 @@ void loop() {
 
 ### C. Dasar Teori  
 Sensor **LM35** adalah sensor suhu analog yang menghasilkan tegangan keluaran sebanding dengan suhu dalam skala Celsius.  
-Setiap perubahan **10 mV** mewakili **1Â°C**.  
-Arduino membaca nilai analog (0â€“1023) dari LM35 pada rentang tegangan 0â€“5V, sehingga suhu dapat dihitung dengan rumus:  
+Setiap perubahan **10 mV** mewakili **1°C**.  
+Arduino membaca nilai analog (0–1023) dari LM35 pada rentang tegangan 0–5V, sehingga suhu dapat dihitung dengan rumus:
 
-\[
-\text{Suhu (Â°C)} = \frac{\text{Nilai ADC} \times 5.0 \times 100}{1024}
-\]
+`Suhu (°C) = (Nilai_ADC × 5.0 × 100) / 1023`
+
+
+Rumus ini berasal dari konversi nilai ADC ke tegangan (`ADC × 5 / 1023`), lalu dikonversi ke suhu dengan faktor 100 karena 1°C = 10 mV = 0.01 V.  
+Dengan demikian, setiap kenaikan tegangan 0.01 volt pada output LM35 menunjukkan kenaikan suhu sebesar 1°C.
 
 ---
 
-## KEGIATAN 1 â€“ Sistem Open Loop (Pembacaan Sensor Saja)
+## KEGIATAN 1 - Sistem Open Loop (Pembacaan Sensor Saja)
 
 ### Tujuan  
 Membaca suhu dari sensor LM35 tanpa memengaruhi output (monitoring saja).
 
 ### Langkah Percobaan  
 1. Hubungkan pin LM35 sebagai berikut:  
-   - VCC â†’ 5V Arduino  
-   - OUT â†’ A0 Arduino  
-   - GND â†’ GND Arduino  
+   - VCC → 5V Arduino  
+   - OUT → A0 Arduino  
+   - GND → GND Arduino  
 2. Upload program berikut ke Arduino.
 
 ### Kode Program
@@ -203,7 +205,7 @@ void loop() {
   suhu = (adcValue * 5.0 * 100.0) / 1024.0;
   Serial.print("Suhu: ");
   Serial.print(suhu);
-  Serial.println(" Â°C");
+  Serial.println(" °C");
   delay(1000);
 }
 ```
@@ -213,16 +215,16 @@ Amati hasil pembacaan suhu pada **Serial Monitor**. Perhatikan bahwa output tida
 
 ---
 
-## KEGIATAN 2 â€“ Sistem Close Loop (Kontrol 3 LED Berdasarkan Suhu)
+## KEGIATAN 2 - Sistem Close Loop (Kontrol 3 LED Berdasarkan Suhu)
 
 ### Tujuan  
 Menyalakan LED sesuai dengan batas suhu tertentu.
 
 ### Langkah Percobaan  
 1. Hubungkan tiga LED dengan resistor ke pin berikut:  
-   - LED Hijau â†’ pin 8  
-   - LED Kuning â†’ pin 9  
-   - LED Merah â†’ pin 10  
+   - LED Hijau → pin 8  
+   - LED Kuning → pin 9  
+   - LED Merah → pin 10  
 2. Upload program berikut.
 
 ### Kode Program
@@ -260,7 +262,7 @@ void loop() {
 
   Serial.print("Suhu: ");
   Serial.print(suhu);
-  Serial.println(" Â°C");
+  Serial.println(" °C");
   delay(1000);
 }
 ```
@@ -270,7 +272,7 @@ Amati perubahan LED saat suhu sensor meningkat atau menurun.
 
 ---
 
-## KEGIATAN 3 â€“ Kontrol Proporsional Warna LED
+## KEGIATAN 3 - Kontrol Proporsional Warna LED
 
 ### Tujuan  
 Membuat perubahan warna LED sebanding (proporsional) terhadap kenaikan suhu.
@@ -298,7 +300,7 @@ void loop() {
   int adcValue = analogRead(sensorPin);
   suhu = (adcValue * 5.0 * 100.0) / 1024.0;
 
-  // Mapping proporsional antara 20Â°C â€“ 40Â°C
+  // Mapping proporsional antara 20°C - 40°C
   int intensitasHijau = map(suhu, 20, 40, 255, 0);
   int intensitasMerah = map(suhu, 20, 40, 0, 255);
   int intensitasKuning = 128;
@@ -309,7 +311,7 @@ void loop() {
 
   Serial.print("Suhu: ");
   Serial.print(suhu);
-  Serial.println(" Â°C");
+  Serial.println(" °C");
   delay(500);
 }
 ```
@@ -319,7 +321,7 @@ Amati transisi warna LED yang berubah perlahan seiring perubahan suhu.
 
 ---
 
-## KEGIATAN 4 â€“ Logging Data Suhu ke File CSV
+## KEGIATAN 4 - Logging Data Suhu ke File CSV
 
 ### Tujuan  
 Merekam data suhu Arduino ke komputer dan memplot grafik di Microsoft Excel.
@@ -327,12 +329,12 @@ Merekam data suhu Arduino ke komputer dan memplot grafik di Microsoft Excel.
 ### Langkah Percobaan  
 1. Unduh dan pasang aplikasi **CoolTerm** dari situs resmi:  
    [https://freeware.the-meiers.org](https://freeware.the-meiers.org)  
-2. Jalankan CoolTerm, pilih **Connection â†’ Options â†’ Serial Port**, atur:  
+2. Jalankan CoolTerm, pilih **Connection → Options → Serial Port**, atur:  
    - Port: COM Arduino Anda  
    - Baudrate: 9600  
    - Data Bits: 8, Stop Bits: 1, Parity: None  
 3. Klik **Connect**. Data suhu akan tampil secara real-time.  
-4. Untuk menyimpan data, pilih **Connection â†’ Capture to Textfile â†’ Start**.  
+4. Untuk menyimpan data, pilih **Connection → Capture to Textfile → Start**.  
    Simpan dengan nama `data_suhu.csv`.  
 5. Setelah selesai, pilih **Stop Capture**.  
 6. Buka file `.csv` tersebut di **Microsoft Excel**, lalu buat grafik garis suhu terhadap waktu.
@@ -353,7 +355,7 @@ void loop() {
   suhu = (adcValue * 5.0 * 100.0) / 1024.0;
   Serial.print("Suhu: ");
   Serial.print(suhu);
-  Serial.println(" Â°C");
+  Serial.println(" °C");
   delay(1000);
 }
 ```
