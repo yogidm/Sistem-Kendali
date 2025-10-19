@@ -1,4 +1,4 @@
-# Praktikum Sistem Kendali - Arduino Mega 2560
+# Praktikum Sistem Kendali - Arduino UNO
 Pinout Arduino Uno
 
 ![Alt text](https://github.com/yogidm/Sistem-Kendali/blob/main/Arduino-UNO-Parts-Marking.jpg "Optional Title")
@@ -373,6 +373,224 @@ Bandingkan grafik suhu hasil pengukuran dengan kondisi lingkungan sekitar (misal
 
 ---
 
+
+
+
+# JOBSHEET 5
+## Kontrol Sensor Ultrasonik HC-SR04 dengan Arduino Uno
+
+### A. Tujuan Pembelajaran
+1. Memahami prinsip kerja sensor ultrasonik HC-SR04.  
+2. Melakukan kalibrasi akurasi pembacaan jarak menggunakan Serial Monitor.  
+3. Mengimplementasikan sistem indikator jarak aman menggunakan LED.  
+4. Memvisualisasikan hasil pembacaan jarak menggunakan Serial Plotter.
+
+---
+
+### B. Alat dan Bahan
+- Arduino Uno  
+- Sensor Ultrasonik HC-SR04  
+- 3 LED (Hijau, Kuning, Merah)  
+- 3 resistor 220 Ohm
+- Breadboard dan kabel jumper  
+- Laptop dengan Arduino IDE  
+
+---
+
+### C. Dasar Teori Singkat
+Sensor ultrasonik HC-SR04 bekerja dengan mengukur waktu pantulan gelombang suara dari objek. Gelombang ultrasonik dipancarkan melalui pin **Trigger**, kemudian pantulannya diterima oleh pin **Echo**. Waktu tempuh digunakan untuk menghitung jarak dengan rumus:
+
+```
+Jarak (cm) = (Waktu (microS)  x 0.0343) / 2
+```
+
+---
+
+### D. Diagram Koneksi
+
+| Komponen | Pin Arduino |
+|-----------|--------------|
+| VCC | 5V |
+| GND | GND |
+| Trig | Pin 9 |
+| Echo | Pin 10 |
+| LED Hijau | Pin 2 |
+| LED Kuning | Pin 3 |
+| LED Merah | Pin 4 |
+
+---
+
+### E. Kegiatan 1: Kalibrasi Akurasi Jarak (Serial Monitor)
+
+**Tujuan:**  
+Mengetahui akurasi hasil pembacaan jarak dari sensor ultrasonik.
+
+**Langkah-langkah:**  
+1. Rangkai sensor ultrasonik sesuai tabel koneksi.  
+2. Upload kode berikut ke Arduino.  
+3. Buka Serial Monitor dan amati hasil pengukuran.  
+4. Catat selisih antara hasil sensor dan penggaris.
+
+```cpp
+#define trigPin 9
+#define echoPin 10
+long duration;
+float distance;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+}
+
+void loop() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  duration = pulseIn(echoPin, HIGH);
+  distance = (duration * 0.0343) / 2;
+
+  Serial.print("Jarak: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+  delay(500);
+}
+```
+
+**Tugas:**  
+- Ukur jarak 5, 10, 15, dan 20 cm.  
+- Hitung *error* (%) antara pembacaan sensor dan penggaris.
+
+---
+
+### F. Kegiatan 2: Indikator Jarak Aman Menggunakan LED
+
+**Tujuan:**  
+Membuat sistem indikator visual berdasarkan kategori jarak.
+
+**Kriteria Jarak:**
+- 10-13 cm -> LED **Hijau** (Aman)  
+- 5-9.9 cm -> LED **Kuning** (Terlalu Dekat)  
+- >13.1 cm -> LED **Merah** (Terlalu Jauh)
+
+**Kode Program:**
+
+```cpp
+#define trigPin 9
+#define echoPin 10
+#define ledHijau 2
+#define ledKuning 3
+#define ledMerah 4
+
+long duration;
+float distance;
+
+void setup() {
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  pinMode(ledHijau, OUTPUT);
+  pinMode(ledKuning, OUTPUT);
+  pinMode(ledMerah, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  duration = pulseIn(echoPin, HIGH);
+  distance = (duration * 0.0343) / 2;
+
+  Serial.print("Jarak: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  if (distance >= 10 && distance <= 13) {
+    digitalWrite(ledHijau, HIGH);
+    digitalWrite(ledKuning, LOW);
+    digitalWrite(ledMerah, LOW);
+  } 
+  else if (distance >= 5 && distance < 10) {
+    digitalWrite(ledHijau, LOW);
+    digitalWrite(ledKuning, HIGH);
+    digitalWrite(ledMerah, LOW);
+  } 
+  else if (distance > 13.1) {
+    digitalWrite(ledHijau, LOW);
+    digitalWrite(ledKuning, LOW);
+    digitalWrite(ledMerah, HIGH);
+  } 
+  else {
+    digitalWrite(ledHijau, LOW);
+    digitalWrite(ledKuning, LOW);
+    digitalWrite(ledMerah, LOW);
+  }
+
+  delay(500);
+}
+```
+
+---
+
+### G. Kegiatan 3: Visualisasi Data Jarak Menggunakan Serial Plotter
+
+**Tujuan:**  
+Menampilkan perubahan jarak secara dinamis dalam bentuk grafik menggunakan Serial Plotter.
+
+**Langkah-langkah:**  
+1. Gunakan rangkaian dari kegiatan sebelumnya.  
+2. Upload kode berikut.  
+3. Buka *Tools -> ’ Serial Plotter* di Arduino IDE.  
+4. Gerakkan objek majuâ€“mundur di depan sensor dan amati perubahan grafik.
+
+```cpp
+#define trigPin 9
+#define echoPin 10
+
+long duration;
+float distance;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+}
+
+void loop() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  duration = pulseIn(echoPin, HIGH);
+  distance = (duration * 0.0343) / 2;
+
+  Serial.println(distance); // hanya nilai jarak agar mudah diplot
+  delay(100);
+}
+```
+
+**Tugas:**
+- Amati pola grafik ketika objek digerakkan perlahan dan cepat.  
+- Gambarkan bentuk grafik pada lembar hasil pengamatan.  
+- Jelaskan hubungan antara jarak dan waktu berdasarkan grafik tersebut.
+
+---
+
+### H. Pertanyaan
+1. Apa penyebab perbedaan hasil antara jarak aktual dan hasil pembacaan sensor?  
+2. Bagaimana cara meningkatkan akurasi sensor ultrasonik?  
+3. Apa kelebihan Serial Plotter dibanding Serial Monitor dalam analisis data jarak?  
+4. Bagaimana Anda mengembangkan sistem ini untuk aplikasi dunia nyata?
+
+---
 
 
 ## Jangan Lupa Buat Analisis dan Laporannya. 
