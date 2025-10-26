@@ -593,4 +593,215 @@ void loop() {
 ---
 
 
+# JOBSHEET 6 - OLED Display dengan Animasi dan Variasi Tampilan
+
+## Tujuan Pembelajaran
+- Memahami prinsip kerja OLED 128x64 berbasis komunikasi I2C  
+- Mampu menampilkan teks, grafik, dan animasi sederhana menggunakan library `Adafruit_SSD1306` dan `Adafruit_GFX`  
+- Mengembangkan berbagai variasi animasi yang interaktif dan kreatif  
+
+---
+
+## Alat dan Bahan
+- Arduino Uno  
+- OLED Display 128x64 (I2C)  
+- Kabel jumper  
+
+### Koneksi Pin
+| OLED | Arduino Uno |
+|------|--------------|
+| VCC  | 5V |
+| GND  | GND |
+| SDA  | A4 |
+| SCL  | A5 |
+
+---
+
+## Kegiatan 1 - Menampilkan Teks Statis
+Menampilkan teks sederhana sebagai pengenalan dasar tampilan OLED.
+
+```cpp
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+
+void setup() {
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(10, 20);
+  display.print("OLED Test");
+  display.display();
+}
+
+void loop() {}
+```
+
+---
+
+## Kegiatan 2 - Animasi Objek Bergerak (Bola Berjalan)
+Menampilkan bola kecil yang bergerak dari kiri ke kanan.
+
+```cpp
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+
+void setup() {
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+}
+
+void loop() {
+  for (int x = 0; x < SCREEN_WIDTH; x++) {
+    display.clearDisplay();
+    display.fillCircle(x, 32, 5, SSD1306_WHITE);
+    display.display();
+    delay(15);
+  }
+}
+```
+
+---
+
+## Kegiatan 3 - Animasi Teks Bergerak (Marquee Text)
+Membuat tulisan berjalan dari kanan ke kiri seperti papan pengumuman digital.
+
+```cpp
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+Adafruit_SSD1306 display(128, 64, &Wire, -1);
+
+void setup() {
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+}
+
+void loop() {
+  for (int x = 128; x > -80; x--) {
+    display.clearDisplay();
+    display.setTextSize(2);
+    display.setTextColor(SSD1306_WHITE);
+    display.setCursor(x, 25);
+    display.print("Arduino!");
+    display.display();
+    delay(30);
+  }
+}
+```
+
+---
+
+## Kegiatan 4 - Animasi Progress Bar
+Membuat efek bar loading sebagai simulasi proses berjalan.
+
+```cpp
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+Adafruit_SSD1306 display(128, 64, &Wire, -1);
+
+void setup() {
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+}
+
+void loop() {
+  for (int i = 0; i <= 100; i++) {
+    display.clearDisplay();
+    display.setTextSize(1);
+    display.setTextColor(SSD1306_WHITE);
+    display.setCursor(30, 20);
+    display.print("Loading...");
+    display.drawRect(10, 35, 108, 10, SSD1306_WHITE);
+    display.fillRect(10, 35, i, 10, SSD1306_WHITE);
+    display.display();
+    delay(50);
+  }
+}
+```
+
+---
+
+## Kegiatan 5 - Animasi Rotasi Garis (Radar Effect)
+Simulasi animasi radar dengan garis berputar.
+
+```cpp
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include <math.h>
+
+#define PI 3.14159265358979323846
+Adafruit_SSD1306 display(128, 64, &Wire, -1);
+
+void setup() {
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+}
+
+void loop() {
+  for (int angle = 0; angle < 360; angle += 5) {
+    display.clearDisplay();
+    int centerX = 64, centerY = 32, radius = 25;
+    float rad = angle * PI / 180.0;
+    int x = centerX + radius * cos(rad);
+    int y = centerY + radius * sin(rad);
+    display.drawCircle(centerX, centerY, radius, SSD1306_WHITE);
+    display.drawLine(centerX, centerY, x, y, SSD1306_WHITE);
+    display.display();
+    delay(50);
+  }
+}
+```
+
+---
+
+## Kegiatan 6 - Animasi Kombinasi (Gerak + Teks + Grafik)
+Menampilkan teks dan bola bergerak secara bersamaan untuk efek dinamis.
+
+```cpp
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+Adafruit_SSD1306 display(128, 64, &Wire, -1);
+
+void setup() {
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+}
+
+void loop() {
+  for (int x = 0; x < 128; x += 2) {
+    display.clearDisplay();
+    display.setTextSize(1);
+    display.setTextColor(SSD1306_WHITE);
+    display.setCursor(10, 5);
+    display.print("Animasi OLED");
+    display.fillCircle(x, 45, 4, SSD1306_WHITE);
+    display.display();
+    delay(25);
+  }
+}
+```
+
+---
+
+## Variasi Kegiatan Pengayaan (coba menggunakan promt AI semisal chatgpt, gemini, dsb)
+- Menambahkan efek kedipan (*blinking*) atau *fade-in/fade-out* teks  
+- Menampilkan animasi arah panah untuk menunjukkan navigasi seperti kompas
+- Membuat jam digital animasi dengan efek transisi angka (counter up atau counter down) 
+- Membuat animasi grafik sinyal sinusoid 3 fasa. 
+
+---
+
+
 ## Jangan Lupa Buat Analisis dan Laporannya. 
