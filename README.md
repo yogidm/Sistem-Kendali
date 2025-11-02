@@ -803,5 +803,347 @@ void loop() {
 
 ---
 
+# JOBSHEET 7
+**Sistem Kontrol Motor DC Berbasis Intensitas Cahaya menggunakan Arduino (Motor Geared 2-kabel)**
+
+---
+
+## A. Tujuan Pembelajaran
+Setelah praktikum ini mahasiswa mampu:
+- Membaca dan menampilkan nilai intensitas cahaya pada OLED
+- Mengontrol ON/OFF motor DC berbasis sensor LDR
+- Mengatur kecepatan dan arah motor DC (motor geared 2-kabel) menggunakan driver L298N
+- Memvisualisasikan grafik kecepatan motor terhadap waktu secara real-time pada OLED
+
+---
+
+## B. Alat dan Bahan
+- Arduino Uno / kompatibel (1 unit)  
+- Motor DC geared 2-kabel (1 unit)  
+- Driver motor L298N (1 unit)  
+- Sensor LDR + resistor 10 kΩ (1 set)  
+- OLED I2C SSD1306 0.96" (1 unit)  
+- Breadboard dan kabel jumper  
+- Power supply motor 5–12 V (sesuaikan spesifikasi motor)  
+- Power USB atau 5V untuk Arduino (dapat dipakai sebagai ground common)  
+
+---
+
+## C. Catatan Keamanan & Persiapan
+- Pastikan ground (GND) power motor dan Arduino **disambung bersama** (common ground)  
+- Jangan memberi suplai motor melebihi rating motor/geared; cek spesifikasi pabrikan  
+- Saat melakukan wiring, pastikan semua kabel terpasang dengan rapi untuk menghindari short
+
+---
+
+## D. Konfigurasi Pin 
+- LDR → A0  
+- OLED SDA → A4, SCL → A5 (I2C)  
+- L298N IN1 → D9  
+- L298N IN2 → D10  
+- L298N ENA (PWM) → D6  
+- L298N OUT1/OUT2 → Motor DC (dua kabel motor)  
+- L298N Vcc (motor supply) → Power supply 5–12 V  
+- L298N GND → Ground bersama (Arduino GND + motor supply GND)
+
+---
+
+## E. Rangkaian 
+> Semua koneksi diuraikan dengan format: **Komponen pin → Tujuan pin**
+
+### Rangkaian Umum (digunakan pada semua kegiatan)
+1. **Sensor LDR (dengan pembagi tegangan)**  
+   - LDR satu sisi → 5V  
+   - LDR sisi lain → titik pembagi → sambung ke A0 (nilai analog)  
+   - Titik pembagi juga terhubung ke resistor 10kΩ ke GND  
+   *(Alternatif: LDR dan 10k sebagai pembagi tegangan: 5V—LDR—A0—10k—GND)*
+
+2. **OLED I2C**  
+   - OLED SDA → Arduino A4  
+   - OLED SCL → Arduino A5  
+   - OLED VCC → Arduino 5V (atau 3.3V jika modul membutuhkan)  
+   - OLED GND → Arduino GND
+
+3. **Driver L298N dan Motor Geared (2-kabel)**  
+   - Arduino D9 (IN1) → L298N IN1  
+   - Arduino D10 (IN2) → L298N IN2  
+   - Arduino D6 (ENA/PWM) → L298N ENA (untuk channel yang terhubung pada motor)  
+   - L298N OUT1 → Motor kabel A  
+   - L298N OUT2 → Motor kabel B  
+   - L298N +V (Vs) → power supply motor (5–12 V)  
+   - L298N GND → hubungkan ke GND power motor dan GND Arduino (common ground)  
+   - Jika modul L298N memiliki pin 5V regulator (Vss) pilih sesuai instruksi modul; pastikan tegangan logic benar
+
+4. **Catatan kabel**  
+   - Gunakan kabel yang cocok untuk arus motor (jika arus > beberapa ratus mA gunakan kabel lebih tebal)  
+   - Pastikan polaritas power motor benar saat pengujian pertama
+
+
+---
+
+## Kegiatan 1 — Monitoring Intensitas Cahaya pada OLED
+**Tujuan:** Menampilkan nilai pembacaan LDR pada layar OLED secara real-time
+
+**Wiring:**
+- Susun pembagi tegangan: 5V → LDR → A0 → 10kΩ → GND  
+- OLED SDA → A4, OLED SCL → A5, OLED VCC → 5V, OLED GND → GND  
+- Arduino GND → (common) GND power
+
+**Langkah Kerja:**
+1. Rakitan rangkaian sesuai wiring teks di atas  
+2. Upload program ke Arduino  
+3. Amati nilai ADC pada OLED saat LDR diberi sumber cahaya atau ditutup
+
+**Kode Arduino:**
+```cpp
+#include <Wire.h>
+#include <Adafruit_SSD1306.h>
+
+#define LDR_PIN A0
+Adafruit_SSD1306 oled(128, 64, &Wire);
+
+void setup() {
+  oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  oled.clearDisplay();
+  oled.setTextSize(2);
+  oled.setTextColor(WHITE);
+}
+
+void loop() {
+  int cahaya = analogRead(LDR_PIN);
+  oled.clearDisplay();
+  oled.setCursor(0,0);
+  oled.print("Light:");
+  oled.print(cahaya);
+  oled.display();
+  delay(200);
+}
+```
+
+---
+
+## Kegiatan 2 — Kontrol ON/OFF Motor DC Berdasarkan Intensitas Cahaya
+**Tujuan:** Motor menyala ketika intensitas cahaya melebihi ambang, mati bila di bawah ambang
+
+**Wiring:**
+- L298N IN1 ← Arduino D9  
+- L298N IN2 ← Arduino D10  
+- L298N ENA ← Arduino D6 (untuk ON/OFF gunakan analogWrite 0 atau >0)  
+- L298N OUT1/OUT2 → Motor (dua kabel)  
+- Sambungkan semua GND (Arduino GND dan power motor GND)
+
+**Langkah Kerja:**
+1. Rakit semua koneksi sesuai wiring teks  
+2. Tentukan ambang (threshold) nilai ADC; misal 500  
+3. Upload kode dan uji dengan variasi cahaya
+
+**Kode Arduino:**
+```cpp
+#define LDR_PIN A0
+#define IN1 9
+#define IN2 10
+#define ENA 6
+
+void setup() {
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(ENA, OUTPUT);
+}
+
+void loop() {
+  int cahaya = analogRead(LDR_PIN);
+  int threshold = 500;
+
+  if (cahaya > threshold) {
+    // Motor ON (arah maju)
+    digitalWrite(IN1, HIGH);
+    digitalWrite(IN2, LOW);
+    analogWrite(ENA, 200); // duty 200/255
+  } else {
+    // Motor OFF
+    analogWrite(ENA, 0);
+  }
+  delay(100);
+}
+```
+
+**Pengamatan & Laporan:** Catat nilai cahaya saat motor berubah status; buat tabel pengamatan minimal 10 pembacaan
+
+---
+
+## Kegiatan 3 — Kontrol Kecepatan Motor Berdasarkan Besar-kecilnya Cahaya
+**Tujuan:** Kecepatan motor meningkat seiring kenaikan intensitas cahaya
+
+**Wiring:** Sama seperti Kegiatan 2
+
+**Langkah Kerja:**
+1. Rakit sesuai wiring teks  
+2. Upload program yang mem-mapping nilai LDR ke PWM ENA  
+3. Amati dan catat korelasi nilai ADC dan duty cycle
+
+**Kode Arduino:**
+```cpp
+#define LDR_PIN A0
+#define IN1 9
+#define IN2 10
+#define ENA 6
+
+void setup() {
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(ENA, OUTPUT);
+  digitalWrite(IN1, HIGH); // arah default
+  digitalWrite(IN2, LOW);
+}
+
+void loop() {
+  int cahaya = analogRead(LDR_PIN);
+  int pwm = map(cahaya, 0, 1023, 0, 255);
+  analogWrite(ENA, pwm);
+  delay(100);
+}
+```
+
+**Pengukuran:** Buat tabel kecepatan (mis. dengan tachometer sederhana atau observasi dengan mengira-ngira cepat, sedang, atau pelan) vs nilai ADC
+
+---
+
+## Kegiatan 4 — Kontrol Arah Putar Motor Berdasarkan Kondisi Cahaya
+**Tujuan:** Motor berubah arah saat kondisi cahaya melewati ambang tertentu
+
+**Wiring:** Sama seperti Kegiatan 2
+
+**Langkah Kerja:**
+1. Rakit sesuai wiring teks  
+2. Pilih ambang untuk perubahan arah (misal 500)  
+3. Upload kode, uji dengan kondisi terang/gelap
+
+**Kode Arduino:**
+```cpp
+#define LDR_PIN A0
+#define IN1 9
+#define IN2 10
+#define ENA 6
+
+void setup() {
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(ENA, OUTPUT);
+}
+
+void loop() {
+  int cahaya = analogRead(LDR_PIN);
+  int threshold = 500;
+  int pwm = 200;
+
+  if (cahaya > threshold) {
+    // Arah maju
+    digitalWrite(IN1, HIGH);
+    digitalWrite(IN2, LOW);
+  } else {
+    // Arah balik
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, HIGH);
+  }
+  analogWrite(ENA, pwm);
+  delay(200);
+}
+```
+
+**Catatan:** Saat mengubah arah, berikan jeda singkat (mis. hentikan motor selama 200–500 ms) sebelum membalik arah jika beban besar
+
+---
+
+## Kegiatan 5 — Plot Kecepatan Motor terhadap Waktu pada OLED (Realtime)
+**Tujuan:** Menampilkan grafik scrolling kecepatan motor (berdasarkan PWM) pada OLED secara real-time
+
+**Wiring:** Sama seperti Kegiatan 2 + OLED sudah terhubung ke I2C
+
+**Langkah Kerja:**
+1. Rakit semua koneksi sesuai wiring teks  
+2. Upload kode plotting real-time berikut  
+3. Amati grafik PWM / kecepatan pada OLED saat LDR disinari atau ditutup
+
+**Kode Arduino (realtime plotting):**
+```cpp
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define LDR_PIN A0
+#define IN1 9
+#define IN2 10
+#define ENA 6
+
+#define MAX_DATA 128
+int dataPlot[MAX_DATA];
+int idx = 0;
+
+Adafruit_SSD1306 oled(128, 64, &Wire);
+
+void setup() {
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(ENA, OUTPUT);
+  oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  for (int i = 0; i < MAX_DATA; i++) dataPlot[i] = 0;
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+}
+
+void loop() {
+  int cahaya = analogRead(LDR_PIN);
+  int pwm = map(cahaya, 0, 1023, 0, 63); // 0-63 agar mudah diplot (tinggi pixel)
+  analogWrite(ENA, pwm * 4);
+
+  dataPlot[idx] = pwm;
+  idx = (idx + 1) % MAX_DATA;
+
+  oled.clearDisplay();
+  // Gambar sumbu dasar
+  oled.drawLine(0, 63, 127, 63, WHITE);
+
+  // Gambar grafik scrolling (skala vertikal: 0..63 -> 63..0)
+  for (int i = 0; i < MAX_DATA - 1; i++) {
+    int x1 = i;
+    int y1 = 63 - dataPlot[(idx + i) % MAX_DATA];
+    int x2 = i + 1;
+    int y2 = 63 - dataPlot[(idx + i + 1) % MAX_DATA];
+    oled.drawLine(x1, y1, x2, y2, WHITE);
+  }
+
+  oled.setCursor(0,0);
+  oled.setTextSize(1);
+  oled.print("PWM:");
+  oled.print(pwm * 4);
+  oled.display();
+
+  delay(50);
+}
+```
+
+**Pengamatan:** Simpan screenshot nilai dan grafik (dengan kamera) untuk laporan
+
+---
+
+## G. Tugas dan Pelaporan
+Mahasiswa wajib menyerahkan laporan yang memuat:
+1. Foto rangkaian (gambar rakitan nyata)  
+2. Tabel hasil pengamatan: nilai ADC LDR vs PWM/kecepatan motor (minimal 10 data)  
+3. Screenshot / foto tampilan OLED berisi grafik real-time  
+4. Analisis: hubungan intensitas cahaya dan perilaku motor, problem yang ditemukan, rekomendasi perbaikan  
+5. Kesimpulan
+
+---
+
+## H. Lampiran — Troubleshooting Singkat
+- **Motor tidak berputar:** Pastikan ENA diberi PWM > 0, Cek sambungan OUT1/OUT2 ke motor, pastikan supply motor ON  
+- **Nilai LDR tidak berubah:** Periksa wiring pembagi tegangan, ganti resistor 10k jika rusak, cek kabel A0  
+- **OLED blank:** Periksa alamat I2C (0x3C umum), periksa VCC/GND, pastikan library SSD1306 terinstal  
+- **Motor panas berlebih:** kurangi supply voltage atau periksa beban mekanis
+
+---
+
+
 
 ## Jangan Lupa Buat Analisis dan Laporannya. 
