@@ -890,7 +890,7 @@ Setelah praktikum ini mahasiswa mampu:
 - Arduino GND → (common) GND power
 
 **Langkah Kerja:**
-1. Rakitan rangkaian sesuai wiring teks di atas  
+1. Rakitan rangkaian sesuai wiring di atas  
 2. Upload program ke Arduino  
 3. Amati nilai ADC pada OLED saat LDR diberi sumber cahaya atau ditutup
 
@@ -933,7 +933,7 @@ void loop() {
 - Sambungkan semua GND (Arduino GND dan power motor GND)
 
 **Langkah Kerja:**
-1. Rakit semua koneksi sesuai wiring teks  
+1. Rakit semua koneksi sesuai wiring 
 2. Tentukan ambang (threshold) nilai ADC; misal 500  
 3. Upload kode dan uji dengan variasi cahaya
 
@@ -977,7 +977,7 @@ void loop() {
 **Wiring:** Sama seperti Kegiatan 2
 
 **Langkah Kerja:**
-1. Rakit sesuai wiring teks  
+1. Rakit sesuai wiring 
 2. Upload program yang mem-mapping nilai LDR ke PWM ENA  
 3. Amati dan catat korelasi nilai ADC dan duty cycle
 
@@ -1014,7 +1014,7 @@ void loop() {
 **Wiring:** Sama seperti Kegiatan 2
 
 **Langkah Kerja:**
-1. Rakit sesuai wiring teks  
+1. Rakit sesuai wiring  
 2. Pilih ambang untuk perubahan arah (misal 500)  
 3. Upload kode, uji dengan kondisi terang/gelap
 
@@ -1060,7 +1060,7 @@ void loop() {
 **Wiring:** Sama seperti Kegiatan 2 + OLED sudah terhubung ke I2C
 
 **Langkah Kerja:**
-1. Rakit semua koneksi sesuai wiring teks  
+1. Rakit semua koneksi sesuai wiring 
 2. Upload kode plotting real-time berikut  
 3. Amati grafik PWM / kecepatan pada OLED saat LDR disinari atau ditutup
 
