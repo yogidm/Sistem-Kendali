@@ -1175,6 +1175,21 @@ Diagram skematik dasar untuk menghubungkan motor servo dengan Arduino. Pada skem
 ![Interfacing Servo Motor with Arduino Circuit Diagram](https://www.circuitschools.com/wp-content/uploads/2022/02/interfacing-servo-motor-with-arduino-circuit-diagram.webp)
 
 ---
+### Rekap Pinjam Alat dan Bahan
+
+
+| Nama Alat / Bahan                     | Jumlah  | Keterangan / Digunakan pada Kegiatan |
+| ------------------------------------- | ------- | ------------------------------------ |
+| Arduino Uno                           | 1 unit  | Semua kegiatan                       |
+| Motor Servo SG90 atau yang ada saja   | 1 unit  | Kegiatan 1–5                         |
+| Sensor Ultrasonik HC-SR04             | 1 unit  | Kegiatan 2, 4, 5                     |
+| Potensiometer 10 kΩ                   | 1 unit  | Kegiatan 1 dan 3                     |
+| OLED 0.96" I²C Display                | 1 unit  | Kegiatan 3 (opsional di 5)           |
+| Breadboard                            | 1 unit  | Semua kegiatan                       |
+| Kabel Jumper (Male–Male, Male–Female) | ±10 pcs | Semua kegiatan                       |
+| Kabel USB Arduino                     | 1 pcs   | Semua kegiatan                       |
+| Buzzer                                | 1 unit  | Tantangan kegiatan 4 dan 5           |
+| Arm servo dan selotip                 | 1 unit  | Kegiatan 4 (radar)                   |
 
 
 ### **Kegiatan 1 - Pengaturan Posisi Motor Servo Melalui Potensiometer**
