@@ -1145,5 +1145,430 @@ Mahasiswa wajib menyerahkan laporan yang memuat:
 ---
 
 
+# Jobsheet 8 - Kontrol Motor Servo
+
+## Seputar Motor Servo
+
+### Kabel Standard Micro Servo
+
+Motor servo memiliki tiga kabel utama yang berfungsi untuk catu daya dan kendali posisi. Pada umumnya, kabel cokelat berfungsi sebagai ground (GND), kabel merah sebagai tegangan positif (VCC) 5V, dan kabel oranye atau kuning sebagai sinyal kontrol (PWM) dari mikrokontroler seperti Arduino. Melalui sinyal PWM inilah posisi sudut poros servo diatur secara presisi.
+
+![Kabel Motor Servo Standar](https://components101.com/sites/default/files/component_pin/Servo-Motor-Wires.png)
+
+### Pinout Motor Servo Standard MG996R
+
+Pada model MG996R, urutan dan fungsi pin tetap sama seperti servo standar, hanya saja jenis ini memiliki torsi yang lebih besar dan mampu menahan beban mekanis yang lebih berat, sehingga sering digunakan untuk aplikasi robotik, lengan mekanik, atau sistem kontrol industri kecil.
+
+![Pinout Motor Servo MG996R](https://components101.com/sites/default/files/component_pin/MG996R-Servo-Motor-Pinout.png)
+
+
+### Sudut dan PWM Motor Servo
+
+Diagram yang menunjukkan hubungan antara lebar pulsa (PWM) dan posisi sudut motor servo. Hubungan antara lebar pulsa PWM dan posisi sudut servo ditunjukkan pada diagram. Pulsa dengan lebar sekitar 1 ms akan memutar servo ke posisi 0°, sedangkan 1,5 ms mengarah ke 90°, dan 2 ms menghasilkan posisi 180°. Arduino mengirimkan pulsa berulang dengan periode sekitar 20 ms untuk menjaga posisi servo tetap stabil.
+
+![Servo Motor PWM Angle Range](https://www.circuitschools.com/wp-content/uploads/2022/02/servo-motor-pulse-width-modulation-angle-range.webp)
+
+### Skema Rangkaian Servo dengan Arduino
+
+Diagram skematik dasar untuk menghubungkan motor servo dengan Arduino. Pada skema rangkaian dengan Arduino, kabel VCC servo dihubungkan ke pin 5V Arduino, GND servo ke GND Arduino, dan kabel sinyal PWM dihubungkan ke salah satu pin digital PWM (misalnya pin 6). Disarankan untuk menggunakan sumber daya eksternal jika servo membutuhkan arus besar agar Arduino tidak mengalami gangguan daya.
+
+![Interfacing Servo Motor with Arduino Circuit Diagram](https://www.circuitschools.com/wp-content/uploads/2022/02/interfacing-servo-motor-with-arduino-circuit-diagram.webp)
+
+---
+
+
+### **Kegiatan 1 - Pengaturan Posisi Motor Servo Melalui Potensiometer**
+
+#### **Tujuan**
+Mengendalikan posisi sudut motor servo secara manual menggunakan potensiometer.
+
+#### **Dasar Teori**
+Motor servo merupakan aktuator yang mampu bergerak pada sudut tertentu (biasanya 0°--180°) sesuai sinyal PWM dari Arduino.\
+Dengan menggunakan potensiometer, nilai analog yang dihasilkan (0--1023) dapat dikonversi menjadi sudut servo (0°--180°).
+
+
+#### **Alat dan Bahan**
+-   1 × Arduino Uno
+-   1 × Motor servo (SG90)
+-   1 × Potensiometer 10 kΩ
+-   Breadboard dan kabel jumper
+-   Kabel USB
+
+
+#### **Skema Singkat**
+-   Potensiometer:
+    -   Kanan → 5V
+    -   Tengah → A0
+    -   Kiri → GND
+
+-   Servo:
+    -   VCC → 5V
+    -   GND → GND
+    -   Sinyal → Pin 6
+
+
+
+#### **Kode Program Arduino**
+
+```cpp
+#include <Servo.h>
+
+Servo myservo;
+int potPin = A0;
+int val;
+
+void setup() {
+  myservo.attach(6);
+  Serial.begin(9600);
+  Serial.println("Kontrol Servo dengan Potensiometer");
+}
+
+void loop() {
+  val = analogRead(potPin);
+  val = map(val, 0, 1023, 0, 180);
+  myservo.write(val);
+  Serial.print("Sudut Servo: ");
+  Serial.println(val);
+  delay(15);
+}
+```
+
+#### **Cara Uji Coba**
+
+Putar potensiometer perlahan dan amati perubahan sudut motor servo sesuai posisi potensio.
+
+#### **Pertanyaan & Tantangan**
+
+- Jelaskan hubungan antara nilai analog potensiometer dan sudut servo dalam kode Anda.
+- Modifikasi program agar sudut servo bergerak secara halus (misalnya dengan menginterpolasi perubahan sudut).
+
+
+* * * * *
+
+### **Kegiatan 2 - Kontrol Motor Servo Berdasarkan Jarak dengan Sensor Ultrasonik**
+
+#### **Tujuan**
+Mengatur posisi servo berdasarkan jarak objek yang terdeteksi oleh sensor ultrasonik.
+
+
+#### **Dasar Teori**
+Sensor ultrasonik HC-SR04 mengukur jarak berdasarkan waktu pantulan gelombang suara. Nilai jarak ini dapat digunakan untuk mengatur posisi servo secara proporsional.
+
+
+#### **Alat dan Bahan**
+-   1 × Arduino Uno
+-   1 × Sensor ultrasonik HC-SR04
+-   1 × Motor servo
+-   Breadboard dan jumper
+
+#### **Skema Singkat**
+-   Trig → Pin 9
+-   Echo → Pin 10
+-   Servo → Pin 6
+
+
+
+#### **Kode Program Arduino**
+
+```cpp
+#include <Servo.h>
+
+Servo myservo;
+const int trigPin = 9;
+const int echoPin = 10;
+long duration;
+float distance;
+int angle;
+
+void setup() {
+  myservo.attach(6);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  Serial.begin(9600);
+  Serial.println("Kontrol Servo Berdasarkan Jarak");
+}
+
+void loop() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  duration = pulseIn(echoPin, HIGH);
+  distance = duration * 0.034 / 2;
+
+  angle = map(distance, 2, 20, 0, 180);
+  angle = constrain(angle, 0, 180);
+  myservo.write(angle);
+
+  Serial.print("Jarak: ");
+  Serial.print(distance);
+  Serial.print(" cm | Sudut: ");
+  Serial.println(angle);
+
+  delay(200);
+}
+```
+
+
+
+#### **Cara Uji Coba**
+
+Dekatkan dan jauhkan tangan atau objek dari sensor, amati perubahan posisi servo sesuai jarak yang terukur.
+
+#### **Pertanyaan & Tantangan**
+- Bagaimana Anda menangani pengukuran jarak yang fluktuatif agar servo tidak ‘bergetar’?
+- Tambahkan logika agar jika objek bergerak mendekat cepat, servo melakukan sweep (gerakan bolak-balik) sebagai alarm visual.
+
+
+* * * * *
+
+### **Kegiatan 3 - Tampilan Sudut Servo di Layar OLED**
+
+#### **Tujuan**
+Menampilkan nilai sudut servo secara real-time pada layar OLED 0.96".
+
+#### **Dasar Teori**
+Layar OLED dapat menampilkan informasi numerik dari Arduino menggunakan komunikasi I²C. Nilai sudut servo dapat diambil dari hasil pembacaan potensiometer atau sensor dan ditampilkan di layar.
+
+
+#### **Alat dan Bahan**
+-   1 × Arduino Uno
+-   1 × OLED 0.96" I²C
+-   1 × Motor servo
+-   1 × Potensiometer 10 kΩ
+-   Breadboard dan kabel jumper
+
+#### **Skema Singkat**
+-   OLED: VCC → 5V, GND → GND, SDA → A4, SCL → A5
+-   Servo: Pin 6
+-   Potensiometer: Tengah → A0
+
+* * * * *
+
+#### **Kode Program Arduino**
+
+```cpp
+#include <Servo.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+
+Servo myservo;
+int potPin = A0;
+int val;
+
+void setup() {
+  myservo.attach(6);
+  Serial.begin(9600);
+
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println("OLED tidak terdeteksi");
+    for(;;);
+  }
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+}
+
+void loop() {
+  val = analogRead(potPin);
+  val = map(val, 0, 1023, 0, 180);
+  myservo.write(val);
+
+  display.clearDisplay();
+  display.setCursor(0, 20);
+  display.print("Sudut Servo:");
+  display.setTextSize(2);
+  display.setCursor(0, 35);
+  display.print(val);
+  display.display();
+
+  delay(100);
+}
+```
+
+#### **Cara Uji Coba**
+Putar potensiometer dan amati perubahan nilai sudut servo yang ditampilkan di layar OLED secara real-time.
+
+#### **Pertanyaan & Tantangan**
+- Ubah tampilan OLED agar selain sudut juga menampilkan bar indikator (misalnya “▂▁▁▁▁” untuk 0° dan “▁▁▁▁▂” untuk 180°).
+- Tambahkan fungsi “home” (servo kembali ke sudut 90° secara otomatis setiap 10 detik jika tidak ada input) dan tampilkan timer countdown di OLED.
+
+
+* * * * *
+
+### **Kegiatan 4 - Mini Radar Ultrasonik dengan Motor Servo**
+
+#### **Tujuan**
+Membuat sistem radar mini untuk mendeteksi objek di berbagai arah menggunakan kombinasi sensor ultrasonik dan servo motor.
+
+#### **Dasar Teori**
+Servo akan berputar dari 0° hingga 180°, sementara sensor ultrasonik mengukur jarak pada setiap sudut. Data jarak dapat ditampilkan di **Serial Monitor** atau **Serial Plotter** untuk divisualisasikan seperti radar.
+
+
+
+#### **Alat dan Bahan**
+-   1 × Arduino Uno
+-   1 × Sensor ultrasonik HC-SR04
+-   1 × Motor servo
+-   Breadboard dan kabel jumper
+
+#### **Skema Singkat**
+-   Trig → Pin 9
+-   Echo → Pin 10
+-   Servo → Pin 6
+
+#### **Kode Program Arduino**
+
+```cpp
+#include <Servo.h>
+
+Servo myservo;
+const int trigPin = 9;
+const int echoPin = 10;
+long duration;
+float distance;
+
+void setup() {
+  Serial.begin(9600);
+  myservo.attach(6);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  Serial.println("Mini Radar Aktif");
+}
+
+void loop() {
+  for (int angle = 0; angle <= 180; angle += 5) {
+    myservo.write(angle);
+    delay(100);
+    distance = getDistance();
+    Serial.print(angle);
+    Serial.print(",");
+    Serial.println(distance);
+  }
+
+  for (int angle = 180; angle >= 0; angle -= 5) {
+    myservo.write(angle);
+    delay(100);
+    distance = getDistance();
+    Serial.print(angle);
+    Serial.print(",");
+    Serial.println(distance);
+  }
+}
+
+float getDistance() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  duration = pulseIn(echoPin, HIGH);
+  return duration * 0.034 / 2;
+}
+```
+
+#### **Cara Uji Coba**
+Tempelkan sensor ultrasonik di atas servo menggunakan selotip.\
+Buka **Serial Plotter (Ctrl + Shift + L)** di Arduino IDE untuk melihat pola "radar" hasil scanning sudut 0--180°.
+
+#### **Pertanyaan & Tantangan**
+- Mengapa servo perlu berputar bolak-balik dari 0° hingga 180° saat melakukan pemindaian objek menggunakan sensor ultrasonik?
+- Modifikasi program agar radar dapat mengaktifkan buzzer ketika mendeteksi objek pada jarak kurang dari 10 cm.
+
+* * * * *
+
+### **Kegiatan 5 - Sistem Sortir Barang Berdasarkan Ukuran atau Jarak**
+
+#### **Tujuan**
+Mensimulasikan sistem penyortiran barang berdasarkan ukuran objek menggunakan sensor ultrasonik dan motor servo.
+
+#### **Dasar Teori**
+Sensor ultrasonik diletakkan di atas jalur untuk membaca jarak antara sensor dan permukaan objek. Semakin besar objek, semakin dekat jaraknya ke sensor. Servo berfungsi untuk mengarahkan atau memindahkan barang ke posisi yang sesuai.
+
+#### **Logika Penyortiran**
+
+- Jika jarak < 5 cm  → objek besar  → servo ke 135°
+- Jika jarak 5--10 cm → objek sedang → servo ke 90°
+- Jika jarak > 10 cm → objek kecil  → servo ke 45°
+
+#### **Alat dan Bahan**
+-   1 × Arduino Uno
+-   1 × Sensor ultrasonik HC-SR04
+-   1 × Motor servo
+-   Breadboard dan jumper
+
+#### **Skema Singkat**
+-   Trig → Pin 9
+-   Echo → Pin 10
+-   Servo → Pin 6
+
+
+#### **Kode Program Arduino**
+
+```cpp
+#include <Servo.h>
+
+const int trigPin = 9;
+const int echoPin = 10;
+long duration;
+float distance;
+Servo myservo;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  myservo.attach(6);
+  myservo.write(90);
+  Serial.println("Sistem Sortir Aktif");
+}
+
+void loop() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  duration = pulseIn(echoPin, HIGH);
+  distance = duration * 0.034 / 2;
+
+  Serial.print("Jarak: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  if (distance < 5) {
+    Serial.println("Objek besar terdeteksi");
+    myservo.write(135);
+  }
+  else if (distance >= 5 && distance <= 10) {
+    Serial.println("Objek sedang terdeteksi");
+    myservo.write(90);
+  }
+  else {
+    Serial.println("Objek kecil terdeteksi");
+    myservo.write(45);
+  }
+
+  delay(500);
+}
+```
+
+#### **Cara Uji Coba**
+
+Letakkan sensor ultrasonik di atas jalur objek.\
+Dekatkan objek dengan ukuran berbeda, dan amati pergerakan servo serta keluaran jarak pada **Serial Monitor**.
+
+
+#### **Pertanyaan & Tantangan**
+- Mengapa semakin besar ukuran objek, jarak yang terbaca oleh sensor ultrasonik menjadi semakin kecil?
+- Modifikasi program agar sistem mengeluarkan bunyi buzzer ketika mendeteksi objek besar (jarak < 5 cm). Tambahkan juga tampilan kategori objek pada OLED jika tersedia.
 
 ## Jangan Lupa Buat Analisis dan Laporannya. 
